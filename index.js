@@ -7,7 +7,8 @@ exports.manifest = {stream: 'source', get: 'async'}
 const whitelist = ["kMtn+GVKlW6ULLeuDJI4xAM6d3fD9d0xRjw9pQH0OC8=.ed25519"]
 
 function reduce (result, item) {
-  if (item) result.push(item)
+  if (!result) result = {}
+  if (item) result[item.dirName] = item
   return result
 }
 
