@@ -1,14 +1,17 @@
 const FlumeReduce = require('flumeview-reduce')
+const fs = require('fs')
+const path = require('path')
 
 exports.name = 'drive'
 exports.version = require('./package.json').version
 exports.manifest = {stream: 'source', get: 'async'}
+console.log(__dirname)
+const config = fs.readFileSync(path.join(__dirname, '../../config'))
 
-const whitelist = ["kMtn+GVKlW6ULLeuDJI4xAM6d3fD9d0xRjw9pQH0OC8=.ed25519"]
+const { whitelist } = JSON.parse(config)
 
 function reduce (result, item) {
-  if (!result) result = {}
-  if (item) result[item.dirName] = item
+  if (item) result.push(item)
   return result
 }
 
@@ -17,8 +20,8 @@ function map (msg) {
   const { dirName, publicKey, type} = msg.value.content
 
   if (dirName && type === 'hyperdrive' && author.indexOf(whitelist) !== -1) {
-    return {author, dirName, publicKey}
+    return {type, author, dirName, publicKey}
   }
 }
 
-exports.init = (sbot, config) => sbot._flumeUse('drive', FlumeReduce(1, reduce, map))
+exports.init = (sbot, config) => sbot._flumeUse('drive', FlumeReduce(1, reduce, map, null, []))
